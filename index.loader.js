@@ -15,10 +15,19 @@ module.exports.pitch = function (remainingRequest) {
     console.error('ERROR: ' + msg);
     throw new Error(msg);
   }
-  
-  var config = require(configFilePath);
-  var styleLoader = config.styleLoader || 'style-loader!css-loader!less-loader';
 
+  var config = require(configFilePath);
+  var styleLoader;
+  this.options.module.loaders.forEach(function(x){
+    if(x.test.test(".less")){
+      styleLoader = x.loader
+    }
+  })
+  if(!styleLoader){
+    var msg = "you should have a working less-loader configured";
+    console.error("ERROR: " + msg);
+    throw new Error(msg);
+  }
   var styleLoaderCommand = 'require(' + JSON.stringify('-!' + styleLoader + '!' +
       require.resolve('./bootstrap-styles.loader.js') + '!' + configFilePath) + ');';
   var jsLoaderCommand = 'require(' + JSON.stringify('-!' +
