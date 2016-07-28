@@ -20,7 +20,7 @@ module.exports.pitch = function (remainingRequest) {
   var styleLoader;
   this.options.module.loaders.forEach(function(x){
     if(x.test.test(".less")){
-      styleLoader = x.loader
+      styleLoader = x.loader.replace("style-loader", "style-loader/useable")
     }
   })
   if(!styleLoader){
@@ -28,11 +28,12 @@ module.exports.pitch = function (remainingRequest) {
     console.error("ERROR: " + msg);
     throw new Error(msg);
   }
-  var styleLoaderCommand = 'require(' + JSON.stringify('-!' + styleLoader + '!' +
-      require.resolve('./bootstrap-styles.loader.js') + '!' + configFilePath) + ');';
+  var styleDarkLoaderCommand = 'module.exports.bootstrapDarkStyle = require(' + JSON.stringify('-!' + styleLoader + '!' +
+    require.resolve('./bootstrap-dark-styles.loader.js') + '!' + configFilePath) + ');';
+  var styleLightLoaderCommand = 'module.exports.bootstrapLightStyle = require(' + JSON.stringify('-!' + styleLoader + '!' +
+    require.resolve('./bootstrap-light-styles.loader.js') + '!' + configFilePath) + ');';
   var jsLoaderCommand = 'require(' + JSON.stringify('-!' +
-      require.resolve('./bootstrap-scripts.loader.js') + '!' + configFilePath) + ');';
-  var result = [styleLoaderCommand, jsLoaderCommand].join('\n');
+    require.resolve('./bootstrap-scripts.loader.js') + '!' + configFilePath) + ');';
+  var result = [styleDarkLoaderCommand, styleLightLoaderCommand, jsLoaderCommand].join('\n');
   return result;
-
 };
